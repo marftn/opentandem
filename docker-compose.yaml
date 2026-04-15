@@ -1,0 +1,19 @@
+services:
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${OLLAMA_DATA_PATH:-/default/path/.ollama}:/root/.ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    container_name: kokoro
+    ports:
+      - "8880:8880"
+    restart: unless-stopped
