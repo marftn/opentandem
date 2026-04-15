@@ -17,3 +17,20 @@ services:
     ports:
       - "8880:8880"
     restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tandem_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - KOKORO_URL=http://kokoro:8880
+    depends_on:
+      - ollama
+      - kokoro
