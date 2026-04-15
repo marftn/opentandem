@@ -17,6 +17,9 @@
           # Shells
           fish
 
+          # Ollama
+          ollama
+
           # Essentials.
           git
           just

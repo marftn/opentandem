@@ -1,0 +1,24 @@
+services:
+
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    container_name: kokoro
+    ports:
+      - "8880:8880"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tandem_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - KOKORO_URL=http://kokoro:8880
+    depends_on:
+      - kokoro
