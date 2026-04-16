@@ -1,11 +1,16 @@
 services:
-
   kokoro:
     image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
     container_name: kokoro
     ports:
       - "8880:8880"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8880/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   frontend:
     build:
@@ -21,4 +26,5 @@ services:
       - OLLAMA_URL=http://host.docker.internal:11434
       - KOKORO_URL=http://kokoro:8880
     depends_on:
-      - kokoro
+      kokoro:
+        condition: service_healthy
