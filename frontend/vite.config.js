@@ -13,6 +13,10 @@ export default defineConfig({
       '/v1/audio': {
         target: process.env.KOKORO_URL || 'http://localhost:8880',
         changeOrigin: true
+      },
+      '/stt': {
+        target: process.env.STT_URL || 'http://localhost:8000',
+        changeOrigin: true
       }
     }
   }

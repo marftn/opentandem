@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y ffmpeg build-essential git && rm -rf /v
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y curl
 
 COPY main.py .
 

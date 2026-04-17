@@ -1,8 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { transcribeAudio } from '../services/api';
 
 export default function MessageInput({ onSend, isLoading }) {
   const [text, setText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -13,7 +18,7 @@ export default function MessageInput({ onSend, isLoading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (text.trim() && !isLoading) {
+    if (text.trim() && !isLoading && !isTranscribing) {
       onSend(text);
       setText('');
     }
@@ -25,6 +30,49 @@ export default function MessageInput({ onSend, isLoading }) {
       handleSubmit(e);
     }
   };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          setIsTranscribing(true);
+          try {
+            const transcript = await transcribeAudio(audioBlob);
+            if (transcript) {
+              onSend(transcript);
+            }
+          } catch (error) {
+            console.error("Transcription failed", error);
+          } finally {
+            setIsTranscribing(false);
+            stream.getTracks().forEach(track => track.stop());
+          }
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error("Error accessing microphone:", err);
+      }
+    }
+  };
+
+  const isInputDisabled = isLoading || isRecording || isTranscribing;
 
   return (
     <form onSubmit={handleSubmit} style={{
@@ -41,8 +89,8 @@ export default function MessageInput({ onSend, isLoading }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message in Portuguese..."
-        disabled={isLoading}
+        placeholder={isRecording ? "Recording..." : isTranscribing ? "Transcribing..." : "Type a message in Portuguese..."}
+        disabled={isInputDisabled}
         style={{
           flex: 1,
           background: 'transparent',
@@ -59,11 +107,15 @@ export default function MessageInput({ onSend, isLoading }) {
         }}
         rows={1}
       />
+      
+      {/* Mic Button */}
       <button 
-        type="submit" 
-        disabled={!text.trim() || isLoading}
+        type="button" 
+        onClick={toggleRecording}
+        disabled={isLoading || isTranscribing}
+        title={isRecording ? "Stop recording output to send" : "Record audio"}
         style={{
-          background: text.trim() && !isLoading ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.1)',
+          background: isRecording ? 'var(--error-color, #ef4444)' : 'rgba(255, 255, 255, 0.1)',
           color: 'white',
           borderRadius: 'var(--radius-pill)',
           width: '40px',
@@ -71,7 +123,40 @@ export default function MessageInput({ onSend, isLoading }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          opacity: (text.trim() && !isLoading) ? 1 : 0.5,
+          opacity: (isLoading || isTranscribing) ? 0.5 : 1,
+          marginBottom: '4px',
+          transition: 'all 0.2s',
+          cursor: (isLoading || isTranscribing) ? 'not-allowed' : 'pointer'
+        }}
+      >
+        {isRecording ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        )}
+      </button>
+
+      {/* Send Button */}
+      <button 
+        type="submit" 
+        disabled={!text.trim() || isInputDisabled}
+        style={{
+          background: text.trim() && !isInputDisabled ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.1)',
+          color: 'white',
+          borderRadius: 'var(--radius-pill)',
+          width: '40px',
+          height: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: (text.trim() && !isInputDisabled) ? 1 : 0.5,
           marginBottom: '4px'
         }}
       >

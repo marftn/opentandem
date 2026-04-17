@@ -88,3 +88,29 @@ export async function generateSpeech(text, voice = 'pf_dora', lang_code='p') {
     throw error;
   }
 }
+
+/**
+ * Transcribe audio using STT API
+ * Returns text transcript.
+ */
+export async function transcribeAudio(audioBlob) {
+  try {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'recording.webm');
+    
+    const response = await fetch('/stt', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.transcript;
+  } catch (error) {
+    console.error("Error communicating with STT API:", error);
+    throw error;
+  }
+}
