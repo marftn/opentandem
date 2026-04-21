@@ -47,7 +47,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
       - KOKORO_URL=http://kokoro:8880
       - STT_URL=http://stt:8000
     depends_on:
