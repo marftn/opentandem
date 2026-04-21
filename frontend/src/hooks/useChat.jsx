@@ -2,16 +2,21 @@
 import { useState, useCallback } from 'react';
 import { sendChatMessage, generateSpeech } from '../services/api';
 
-const SYSTEM_PROMPT = {
+const SPEAKER_PROMPT = {
   role: 'system',
   content: `You are an expert language tutor holding a friendly conversation in Portuguese. 
 Keep your responses relatively short, natural, and conversational to help the user practice.
-Correct any major mistakes gracefully, but prioritize keeping the conversation flowing.
+Do not contain any technical information or correction for the user message, except if they explicitly asked for it in their message.
 Do not use markdown formatting that would be hard to read or hear. Keep it simple.`
 };
 
+const TEACHER_PROMPT = {
+  role: 'system',
+  content: `You are a strict Portuguese language teacher. Your ONLY job is to review the user's message and correct any language errors. Provide potential improvements to make it sound more natural. If there are no errors and it sounds perfectly natural, reply ONLY with "OK".`
+};
+
 export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: true }) {
-  const [messages, setMessages] = useState([SYSTEM_PROMPT]);
+  const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState('');
   const [audioCache, setAudioCache] = useState({}); // Stores { messageId: audioUrl }
@@ -19,7 +24,15 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
   const sendMessage = useCallback(async (content) => {
     if (!content.trim()) return;
 
-    const userMessage = { role: 'user', content: content.trim() };
+    const userMessageId = Date.now().toString() + '-user';
+    const userMessage = { 
+      role: 'user', 
+      content: content.trim(), 
+      id: userMessageId, 
+      isCorrecting: true, 
+      correction: null 
+    };
+    
     const newMessages = [...messages, userMessage];
     
     setMessages(newMessages);
@@ -27,11 +40,34 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
     setCurrentStreamingMessage('');
 
     try {
-      // Create a temporary ID for the AI message to link audio later
+      // 1. Fire Teacher call in background (non-streaming UI)
+      sendChatMessage(
+        [TEACHER_PROMPT, { role: 'user', content: content.trim() }],
+        'gemma4:e2b',
+        null
+      )
+        .then(correctionResponse => {
+          setMessages(prev => prev.map(m => 
+            m.id === userMessageId ? { ...m, isCorrecting: false, correction: correctionResponse.trim() } : m
+          ));
+        })
+        .catch(err => {
+          console.error("Teacher correction failed", err);
+          setMessages(prev => prev.map(m => 
+            m.id === userMessageId ? { ...m, isCorrecting: false, correction: null } : m
+          ));
+        });
+
+      // 2. Fire Speaker call (streaming UI)
+      const speakerMessages = [
+        SPEAKER_PROMPT, 
+        ...newMessages.map(m => ({ role: m.role, content: m.content }))
+      ];
+      
       const messageId = Date.now().toString();
 
       const finalResponse = await sendChatMessage(
-        newMessages,
+        speakerMessages,
         'gemma4:e2b',
         (chunk) => {
           setCurrentStreamingMessage(chunk);
@@ -49,7 +85,6 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
 
     } catch (error) {
       console.error("Failed to send message:", error);
-      // Optional: Handle error state in UI
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +95,6 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
       const audioUrl = await generateSpeech(text);
       setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
       
-      // Auto-play as requested
       if (audioSettings.autoPlayAudio) {
         const audio = new Audio(audioUrl);
         audio.play().catch(e => console.error("Auto-play failed:", e));
@@ -79,7 +113,7 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
   }, [audioCache]);
 
   return {
-    messages: messages.filter(m => m.role !== 'system'), // hide system prompt from UI
+    messages,
     currentStreamingMessage,
     isLoading,
     sendMessage,
