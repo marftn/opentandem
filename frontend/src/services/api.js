@@ -114,3 +114,27 @@ export async function transcribeAudio(audioBlob) {
     throw error;
   }
 }
+
+/**
+ * Check if the Kokoro TTS service is healthy
+ */
+export async function checkKokoroHealth() {
+  try {
+    const response = await fetch('/health/text-to-audio', { method: 'GET' });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Check if the STT service is healthy
+ */
+export async function checkSttHealth() {
+  try {
+    const response = await fetch('/health/audio-to-text', { method: 'GET' });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}

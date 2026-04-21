@@ -1,7 +1,7 @@
 import React from 'react';
 import AudioPlayerButton from './AudioPlayerButton.jsx';
 
-export default function MessageBubble({ message, isStreaming = false, onPlayAudio, hasAudio }) {
+export default function MessageBubble({ message, isStreaming = false, onPlayAudio, hasAudio, showAudioBtn }) {
   const isUser = message.role === 'user';
   
   return (
@@ -30,7 +30,7 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
         </p>
       </div>
 
-      {!isUser && !isStreaming && onPlayAudio && (
+      {!isUser && !isStreaming && showAudioBtn && onPlayAudio && (
         <div style={{ marginTop: '6px', marginLeft: '4px' }}>
           <AudioPlayerButton onPlay={onPlayAudio} isReady={hasAudio} />
         </div>

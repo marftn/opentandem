@@ -17,6 +17,16 @@ export default defineConfig({
       '/stt': {
         target: process.env.STT_URL || 'http://localhost:8000',
         changeOrigin: true
+      },
+      '/health/text-to-audio': {
+        target: process.env.KOKORO_URL || 'http://localhost:8880',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/health\/text-to-audio/, '/health')
+      },
+      '/health/audio-to-text': {
+        target: process.env.STT_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/health\/audio-to-text/, '/health')
       }
     }
   }

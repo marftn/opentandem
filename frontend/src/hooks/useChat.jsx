@@ -10,7 +10,7 @@ Correct any major mistakes gracefully, but prioritize keeping the conversation f
 Do not use markdown formatting that would be hard to read or hear. Keep it simple.`
 };
 
-export function useChat() {
+export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: true }) {
   const [messages, setMessages] = useState([SYSTEM_PROMPT]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState('');
@@ -43,7 +43,9 @@ export function useChat() {
       setCurrentStreamingMessage('');
       
       // Auto-generate audio for the response
-      fetchAndPlayAudio(finalResponse, messageId);
+      if (audioSettings.generateAudio) {
+        fetchAndPlayAudio(finalResponse, messageId);
+      }
 
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -51,7 +53,7 @@ export function useChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, audioSettings]);
 
   const fetchAndPlayAudio = async (text, messageId) => {
     try {
@@ -59,8 +61,10 @@ export function useChat() {
       setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
       
       // Auto-play as requested
-      const audio = new Audio(audioUrl);
-      audio.play().catch(e => console.error("Auto-play failed:", e));
+      if (audioSettings.autoPlayAudio) {
+        const audio = new Audio(audioUrl);
+        audio.play().catch(e => console.error("Auto-play failed:", e));
+      }
     } catch (err) {
       console.error("Failed to generate/play audio:", err);
     }

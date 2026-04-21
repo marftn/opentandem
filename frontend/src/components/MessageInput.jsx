@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { transcribeAudio } from '../services/api';
 
-export default function MessageInput({ onSend, isLoading }) {
+export default function MessageInput({ onSend, isLoading, enableSTT = true }) {
   const [text, setText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -21,6 +21,10 @@ export default function MessageInput({ onSend, isLoading }) {
     if (text.trim() && !isLoading && !isTranscribing) {
       onSend(text);
       setText('');
+      // Ensure focus remains on the text box
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 0);
     }
   };
 
@@ -90,7 +94,7 @@ export default function MessageInput({ onSend, isLoading }) {
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={isRecording ? "Recording..." : isTranscribing ? "Transcribing..." : "Type a message in Portuguese..."}
-        disabled={isInputDisabled}
+        disabled={isRecording || isTranscribing}
         style={{
           flex: 1,
           background: 'transparent',
@@ -109,6 +113,7 @@ export default function MessageInput({ onSend, isLoading }) {
       />
       
       {/* Mic Button */}
+      {enableSTT && (
       <button 
         type="button" 
         onClick={toggleRecording}
@@ -142,6 +147,7 @@ export default function MessageInput({ onSend, isLoading }) {
           </svg>
         )}
       </button>
+      )}
 
       {/* Send Button */}
       <button 

@@ -3,8 +3,8 @@ import { useChat } from '../hooks/useChat.jsx';
 import MessageBubble from './MessageBubble.jsx';
 import MessageInput from './MessageInput.jsx';
 
-export default function ChatInterface() {
-  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache } = useChat();
+export default function ChatInterface({ audioSettings }) {
+  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache } = useChat(audioSettings);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -33,14 +33,19 @@ export default function ChatInterface() {
         flexDirection: 'column',
         gap: '16px'
       }}>
-        {messages.map((msg, idx) => (
-          <MessageBubble 
-            key={msg.id || idx} 
-            message={msg} 
-            onPlayAudio={msg.id ? () => playAudioForMessage(msg.id) : null}
-            hasAudio={!!audioCache[msg.id]}
-          />
-        ))}
+        {messages.map((msg, idx) => {
+          const hasAudio = !!audioCache[msg.id];
+          const shouldShowAudioBtn = hasAudio || (audioSettings.generateAudio && msg.id);
+          return (
+            <MessageBubble 
+              key={msg.id || idx} 
+              message={msg} 
+              onPlayAudio={msg.id ? () => playAudioForMessage(msg.id) : null}
+              hasAudio={hasAudio}
+              showAudioBtn={shouldShowAudioBtn}
+            />
+          );
+        })}
         
         {currentStreamingMessage && (
           <MessageBubble 
@@ -56,7 +61,7 @@ export default function ChatInterface() {
         borderTop: '1px solid var(--border-glass)',
         backgroundColor: 'rgba(20, 22, 33, 0.5)'
       }}>
-        <MessageInput onSend={sendMessage} isLoading={isLoading} />
+        <MessageInput onSend={sendMessage} isLoading={isLoading} enableSTT={audioSettings.enableSTT} />
       </div>
     </div>
   );

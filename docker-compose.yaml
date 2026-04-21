@@ -15,10 +15,11 @@ services:
       timeout: 10s
       retries: 30
       start_period: 60s
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 8G
+    deploy:
+      replicas: ${OLLAMA_REPLICAS:-1}
+      resources:
+        limits:
+          memory: 8G
 
   kokoro:
     image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
@@ -32,6 +33,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+    deploy:
+      replicas: ${KOKORO_REPLICAS:-1}
 
   frontend:
     build:
@@ -52,8 +55,10 @@ services:
         condition: service_healthy
       kokoro:
         condition: service_healthy
+        required: false
       stt:
         condition: service_healthy
+        required: false
 
   stt:
     build:
@@ -71,3 +76,5 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+    deploy:
+      replicas: ${STT_REPLICAS:-1}
