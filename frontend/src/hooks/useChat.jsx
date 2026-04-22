@@ -40,25 +40,7 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
     setCurrentStreamingMessage('');
 
     try {
-      // 1. Fire Teacher call in background (non-streaming UI)
-      sendChatMessage(
-        [TEACHER_PROMPT, { role: 'user', content: content.trim() }],
-        'gemma4:e2b',
-        null
-      )
-        .then(correctionResponse => {
-          setMessages(prev => prev.map(m => 
-            m.id === userMessageId ? { ...m, isCorrecting: false, correction: correctionResponse.trim() } : m
-          ));
-        })
-        .catch(err => {
-          console.error("Teacher correction failed", err);
-          setMessages(prev => prev.map(m => 
-            m.id === userMessageId ? { ...m, isCorrecting: false, correction: null } : m
-          ));
-        });
-
-      // 2. Fire Speaker call (streaming UI)
+      // 1. Fire Speaker call (streaming UI)
       const speakerMessages = [
         SPEAKER_PROMPT, 
         ...newMessages.map(m => ({ role: m.role, content: m.content }))
@@ -82,6 +64,24 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
       if (audioSettings.generateAudio) {
         fetchAndPlayAudio(finalResponse, messageId);
       }
+
+      // 2. Fire Teacher call in background (non-streaming UI) AFTER speaker completes
+      sendChatMessage(
+        [TEACHER_PROMPT, { role: 'user', content: content.trim() }],
+        'gemma4:e2b',
+        null
+      )
+        .then(correctionResponse => {
+          setMessages(prev => prev.map(m => 
+            m.id === userMessageId ? { ...m, isCorrecting: false, correction: correctionResponse.trim() } : m
+          ));
+        })
+        .catch(err => {
+          console.error("Teacher correction failed", err);
+          setMessages(prev => prev.map(m => 
+            m.id === userMessageId ? { ...m, isCorrecting: false, correction: null } : m
+          ));
+        });
 
     } catch (error) {
       console.error("Failed to send message:", error);

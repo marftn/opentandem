@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import AudioPlayerButton from './AudioPlayerButton.jsx';
 
 export default function MessageBubble({ message, isStreaming = false, onPlayAudio, hasAudio, showAudioBtn }) {
@@ -76,35 +77,97 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
               </button>
             ) : null}
 
-            {/* Glassmorphism Popup */}
-            {showCorrection && message.correction && message.correction.trim().toUpperCase() !== 'OK' && (
-              <div ref={popupRef} className="glass-panel animate-fade-in" style={{
-                position: 'absolute',
-                right: '100%',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                marginRight: '12px',
-                width: '300px',
-                padding: '16px',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--bg-secondary)', // opaque background for readability
-                zIndex: 50,
-                fontSize: '0.9rem',
-                color: 'var(--text-primary)',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
+            {/* Glassmorphism Popup Modal */}
+            {showCorrection && message.correction && message.correction.trim().toUpperCase() !== 'OK' && createPortal(
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+                padding: '16px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--error-color, #ef4444)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 2L2 22h20L12 2z"></path>
-                    <path d="M12 16v-4"></path>
-                    <path d="M12 20h.01"></path>
-                  </svg>
-                  <strong style={{ fontFamily: 'var(--font-heading)' }}>Teacher's Feedback</strong>
+                {/* Backdrop */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    backdropFilter: 'blur(6px)',
+                    WebkitBackdropFilter: 'blur(6px)'
+                  }}
+                  onClick={() => setShowCorrection(false)}
+                />
+                
+                {/* Modal Content */}
+                <div ref={popupRef} className="glass-panel animate-fade-in" style={{
+                  position: 'relative',
+                  width: '100%',
+                  maxWidth: '450px',
+                  maxHeight: '85vh',
+                  overflowY: 'auto',
+                  padding: '24px',
+                  borderRadius: 'var(--radius-lg, 16px)',
+                  background: 'var(--bg-secondary)',
+                  boxShadow: 'var(--shadow-lg)',
+                  border: '1px solid var(--border-glass)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                  zIndex: 10000
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--error-color, #ef4444)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L2 22h20L12 2z"></path>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 20h.01"></path>
+                      </svg>
+                      <strong style={{ fontFamily: 'var(--font-heading)', fontSize: '1.1rem' }}>Teacher's Feedback</strong>
+                    </div>
+                    <button 
+                      onClick={() => setShowCorrection(false)}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid var(--border-glass)',
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        padding: '6px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.color = 'var(--text-primary)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                      title="Close"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                  <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                    {message.correction}
+                  </div>
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {message.correction}
-                </div>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         )}
