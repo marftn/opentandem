@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import ReactMarkdown from 'react-markdown';
 import AudioPlayerButton from './AudioPlayerButton.jsx';
 
 export default function MessageBubble({ message, isStreaming = false, onPlayAudio, hasAudio, showAudioBtn }) {
@@ -162,8 +163,8 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
                       </svg>
                     </button>
                   </div>
-                  <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    {message.correction}
+                  <div style={{ lineHeight: '1.6', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                    <ReactMarkdown>{message.correction}</ReactMarkdown>
                   </div>
                 </div>
               </div>,

@@ -44,7 +44,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend:/app
+      # - ./frontend:/app
       - /app/node_modules
     environment:
       - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
