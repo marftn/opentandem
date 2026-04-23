@@ -2,20 +2,21 @@
 import { useState, useCallback } from 'react';
 import { sendChatMessage, generateSpeech } from '../services/api';
 
-const SPEAKER_PROMPT = {
+const getSpeakerPrompt = (langName) => ({
   role: 'system',
-  content: `You are an expert language tutor holding a friendly conversation in Portuguese. 
+  content: `You are an expert language tutor holding a friendly conversation in ${langName}. 
 Keep your responses relatively short, natural, and conversational to help the user practice.
 Do not contain any technical information or correction for the user message, except if they explicitly asked for it in their message.
 Do not use markdown formatting that would be hard to read or hear. Keep it simple.`
-};
+});
 
-const TEACHER_PROMPT = {
+const getTeacherPrompt = (langName) => ({
   role: 'system',
-  content: `You are a strict Portuguese language teacher. Your ONLY job is to review the user's message and correct any language errors. Provide potential improvements to make it sound more natural. If there are no errors and it sounds perfectly natural, reply ONLY with "OK".`
-};
+  content: `You are a strict ${langName} language teacher. Your ONLY job is to review the user's message and correct any language errors. Provide potential improvements to make it sound more natural. If there are no errors and it sounds perfectly natural, reply ONLY with "OK".`
+});
 
-export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: true }) {
+export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: true }, selectedLanguage = 'pt') {
+  const langName = selectedLanguage === 'es' ? 'Spanish' : selectedLanguage === 'it' ? 'Italian' : 'Portuguese';
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState('');
@@ -42,7 +43,7 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
     try {
       // 1. Fire Speaker call (streaming UI)
       const speakerMessages = [
-        SPEAKER_PROMPT, 
+        getSpeakerPrompt(langName), 
         ...newMessages.map(m => ({ role: m.role, content: m.content }))
       ];
       
@@ -67,7 +68,7 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
 
       // 2. Fire Teacher call in background (non-streaming UI) AFTER speaker completes
       sendChatMessage(
-        [TEACHER_PROMPT, { role: 'user', content: content.trim() }],
+        [getTeacherPrompt(langName), { role: 'user', content: content.trim() }],
         'gemma4:e2b',
         null
       )
@@ -88,11 +89,13 @@ export function useChat(audioSettings = { autoPlayAudio: true, generateAudio: tr
     } finally {
       setIsLoading(false);
     }
-  }, [messages, audioSettings]);
+  }, [messages, audioSettings, selectedLanguage, langName]);
 
   const fetchAndPlayAudio = async (text, messageId) => {
     try {
-      const audioUrl = await generateSpeech(text);
+      const voice = selectedLanguage === 'es' ? 'ef_dora' : selectedLanguage === 'it' ? 'if_sara' : 'pf_dora';
+      const langCode = selectedLanguage === 'es' ? 'e' : selectedLanguage === 'it' ? 'i' : 'p';
+      const audioUrl = await generateSpeech(text, voice, langCode);
       setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
       
       if (audioSettings.autoPlayAudio) {

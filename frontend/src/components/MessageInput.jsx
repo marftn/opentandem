@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { transcribeAudio } from '../services/api';
 
-export default function MessageInput({ onSend, isLoading, enableSTT = true }) {
+export default function MessageInput({ onSend, isLoading, enableSTT = true, selectedLanguage = 'pt' }) {
   const [text, setText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -77,6 +77,8 @@ export default function MessageInput({ onSend, isLoading, enableSTT = true }) {
   };
 
   const isInputDisabled = isLoading || isRecording || isTranscribing;
+  const langName = selectedLanguage === 'es' ? 'Spanish' : selectedLanguage === 'it' ? 'Italian' : 'Portuguese';
+  const placeholderText = isRecording ? "Recording..." : isTranscribing ? "Transcribing..." : `Type a message in ${langName}...`;
 
   return (
     <form onSubmit={handleSubmit} style={{
@@ -93,7 +95,7 @@ export default function MessageInput({ onSend, isLoading, enableSTT = true }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={isRecording ? "Recording..." : isTranscribing ? "Transcribing..." : "Type a message in Portuguese..."}
+        placeholder={placeholderText}
         disabled={isRecording || isTranscribing}
         style={{
           flex: 1,
