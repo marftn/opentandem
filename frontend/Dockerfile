@@ -1,19 +1,15 @@
-FROM node:20-alpine
-
+FROM node:20-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
 
-# Copy package files
-COPY package.json package-lock.json* ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
 COPY . .
 
-# Expose Vite Port
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app .
 EXPOSE 5173
-
-# Change permissions to non-root user for security (optional but best practice)
-# Use the development server and bind to 0.0.0.0
+# USER node
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
