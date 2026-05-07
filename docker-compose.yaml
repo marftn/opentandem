@@ -43,9 +43,9 @@ services:
     container_name: tandem_frontend
     ports:
       - "5173:5173"
-    volumes:
+    # volumes:
       # - ./frontend:/app
-      - /app/node_modules
+      # - /app/node_modules
     environment:
       - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
       - KOKORO_URL=http://kokoro:8880
