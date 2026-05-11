@@ -3,8 +3,8 @@ import { useChat } from '../hooks/useChat.jsx';
 import MessageBubble from './MessageBubble.jsx';
 import MessageInput from './MessageInput.jsx';
 
-export default function ChatInterface({ audioSettings, selectedLanguage }) {
-  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache } = useChat(audioSettings, selectedLanguage);
+export default function ChatInterface({ audioSettings, correctionSettings, selectedLanguage }) {
+  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache } = useChat(audioSettings, correctionSettings, selectedLanguage);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {

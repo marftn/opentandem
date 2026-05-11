@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import SettingsToggle from './SettingsToggle.jsx';
 
-export default function SettingsPanel({ audioSettings, setAudioSettings }) {
+export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings }) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -114,6 +114,23 @@ export default function SettingsPanel({ audioSettings, setAudioSettings }) {
             label="Auto-Play Audio" 
             enabled={audioSettings.autoPlayAudio} 
             onChange={(val) => setAudioSettings(prev => ({ ...prev, autoPlayAudio: val }))} 
+          />
+          <h3 style={{ fontSize: '1rem', marginTop: '16px', marginBottom: '8px', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>Correction Preferences</h3>
+          
+          <SettingsToggle 
+            label="Correct Punctuation" 
+            enabled={correctionSettings?.punctuation} 
+            onChange={(val) => setCorrectionSettings(prev => ({ ...prev, punctuation: val }))} 
+          />
+          <SettingsToggle 
+            label="Correct Accents" 
+            enabled={correctionSettings?.accents} 
+            onChange={(val) => setCorrectionSettings(prev => ({ ...prev, accents: val }))} 
+          />
+          <SettingsToggle 
+            label="Correct Casing" 
+            enabled={correctionSettings?.casing} 
+            onChange={(val) => setCorrectionSettings(prev => ({ ...prev, casing: val }))} 
           />
         </div>
       )}

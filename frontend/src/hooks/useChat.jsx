@@ -10,10 +10,34 @@ Do not contain any technical information or correction for the user message, exc
 Do not use markdown formatting that would be hard to read or hear. Keep it simple.`,
 });
 
-const getTeacherPrompt = (langName) => ({
-  role: "system",
-  content: `You are a ${langName} language teacher. Your ONLY job is to review the user's message and correct their grammatical or orthographic errors. Provide a short explanation of what is wrong and the corrected version. Do NOT try to improve the sentence to make it sound more natural. If the structure is wrong or really weird, that counts as an error. Punctuation and casing do NOT count as errors, except if they are really strange. If it is slightly uncommon but understandable, do NOT consider it an error. If there are no errors, reply ONLY with "OK".`,
-});
+const getTeacherPrompt = (langName, correctionSettings) => {
+  let instructions = `You are a ${langName} language teacher. Your ONLY job is to review the user's message and correct their grammatical or orthographic errors. Provide a short explanation of what is wrong and the corrected version. Do NOT try to improve the sentence to make it sound more natural. If the structure is wrong or really weird, that counts as an error. If it is slightly uncommon but understandable, do NOT consider it an error. `;
+
+  if (!correctionSettings?.punctuation) {
+    instructions += "Punctuation does NOT count as an error. ";
+  } else {
+    instructions += "Incorrect punctuation should be considered an error. ";
+  }
+
+  if (!correctionSettings?.casing) {
+    instructions += "Casing (capitalization) does NOT count as an error. ";
+  } else {
+    instructions += "Incorrect casing (capitalization) should be considered an error. ";
+  }
+
+  if (!correctionSettings?.accents) {
+    instructions += "Missing or incorrect accents do NOT count as an error. ";
+  } else {
+    instructions += "Missing or incorrect accents should be considered an error. ";
+  }
+
+  instructions += `If there are no errors, reply ONLY with "OK".`;
+
+  return {
+    role: "system",
+    content: instructions,
+  };
+};
 
 const getHinterPrompt = (langName) => ({
   role: "system",
@@ -22,6 +46,7 @@ const getHinterPrompt = (langName) => ({
 
 export function useChat(
   audioSettings = { autoPlayAudio: true, generateAudio: true },
+  correctionSettings = { punctuation: false, casing: false, accents: false },
   selectedLanguage = "pt",
 ) {
   const langName =
@@ -89,7 +114,7 @@ export function useChat(
         // 2. Fire Teacher call in background (non-streaming UI) AFTER speaker completes
         sendChatMessage(
           [
-            getTeacherPrompt(langName),
+            getTeacherPrompt(langName, correctionSettings),
             { role: "user", content: content.trim() },
           ],
           "gemma4:e2b",
