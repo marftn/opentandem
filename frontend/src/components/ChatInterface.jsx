@@ -3,8 +3,8 @@ import { useChat } from '../hooks/useChat.jsx';
 import MessageBubble from './MessageBubble.jsx';
 import MessageInput from './MessageInput.jsx';
 
-export default function ChatInterface({ audioSettings, correctionSettings, selectedLanguage }) {
-  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache } = useChat(audioSettings, correctionSettings, selectedLanguage);
+export default function ChatInterface({ audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish }) {
+  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache, translations, translateMessage } = useChat(audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -43,6 +43,8 @@ export default function ChatInterface({ audioSettings, correctionSettings, selec
               onPlayAudio={msg.id ? () => playAudioForMessage(msg.id) : null}
               hasAudio={hasAudio}
               showAudioBtn={shouldShowAudioBtn}
+              translation={translations[msg.id]}
+              onTranslate={msg.id && !msg.isCorrecting ? () => translateMessage(msg.id, msg.content) : null}
             />
           );
         })}

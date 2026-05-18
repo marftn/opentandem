@@ -10,8 +10,9 @@ Do not contain any technical information or correction for the user message, exc
 Do not use markdown formatting that would be hard to read or hear. Keep it simple.`,
 });
 
-const getTeacherPrompt = (langName, correctionSettings) => {
-  let instructions = `You are a ${langName} language teacher. Your ONLY job is to review the user's message and correct their grammatical or orthographic errors. Provide a short explanation of what is wrong and the corrected version. Do NOT try to improve the sentence to make it sound more natural. If the structure is wrong or really weird, that counts as an error. If it is slightly uncommon but understandable, do NOT consider it an error. `;
+const getTeacherPrompt = (langName, correctionSettings, teacherFeedbackInEnglish) => {
+  let feedbackLanguage = teacherFeedbackInEnglish ? "English" : langName;
+  let instructions = `You are a ${langName} language teacher. Your ONLY job is to review the user's message and correct their grammatical or orthographic errors. Provide a short explanation of what is wrong and the corrected version. Provide your feedback in ${feedbackLanguage}. Do NOT try to improve the sentence to make it sound more natural. If the structure is wrong or really weird, that counts as an error. If it is slightly uncommon but understandable, do NOT consider it an error. `;
 
   if (!correctionSettings?.punctuation) {
     instructions += "Punctuation does NOT count as an error. ";
@@ -39,15 +40,24 @@ const getTeacherPrompt = (langName, correctionSettings) => {
   };
 };
 
-const getHinterPrompt = (langName) => ({
+const getHinterPrompt = (langName, teacherFeedbackInEnglish) => {
+  let feedbackLanguage = teacherFeedbackInEnglish ? "English" : langName;
+  return {
+    role: "system",
+    content: `You are a helpful ${langName} language assistant. Your ONLY job is to review the user's message and suggest a more natural, fluent way to express the same idea if their sentence sounds unnatural or awkward. If you provide a suggestion, reply with the improved sentence and a brief explanation. Provide your feedback in ${feedbackLanguage}. If the user's sentence already sounds perfectly natural, reply ONLY with "OK".`,
+  };
+};
+
+const getTranslatePrompt = () => ({
   role: "system",
-  content: `You are a helpful ${langName} language assistant. Your ONLY job is to review the user's message and suggest a more natural, fluent way to express the same idea if their sentence sounds unnatural or awkward. If you provide a suggestion, reply with the improved sentence and a brief explanation. If the user's sentence already sounds perfectly natural, reply ONLY with "OK".`,
+  content: "You are a translator. Your ONLY job is to translate the user's message into English. Reply with ONLY the translation, nothing else.",
 });
 
 export function useChat(
   audioSettings = { autoPlayAudio: true, generateAudio: true },
   correctionSettings = { punctuation: false, casing: false, accents: false },
   selectedLanguage = "pt",
+  teacherFeedbackInEnglish = false,
 ) {
   const langName =
     selectedLanguage === "es"
@@ -59,6 +69,7 @@ export function useChat(
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
   const [audioCache, setAudioCache] = useState({}); // Stores { messageId: audioUrl }
+  const [translations, setTranslations] = useState({});
 
   const sendMessage = useCallback(
     async (content) => {
@@ -114,7 +125,7 @@ export function useChat(
         // 2. Fire Teacher call in background (non-streaming UI) AFTER speaker completes
         sendChatMessage(
           [
-            getTeacherPrompt(langName, correctionSettings),
+            getTeacherPrompt(langName, correctionSettings, teacherFeedbackInEnglish),
             { role: "user", content: content.trim() },
           ],
           "gemma4:e2b",
@@ -147,7 +158,7 @@ export function useChat(
         // 3. Fire Hinter call in background
         sendChatMessage(
           [
-            getHinterPrompt(langName),
+            getHinterPrompt(langName, teacherFeedbackInEnglish),
             { role: "user", content: content.trim() },
           ],
           "gemma4:e2b",
@@ -178,8 +189,26 @@ export function useChat(
         setIsLoading(false);
       }
     },
-    [messages, audioSettings, selectedLanguage, langName],
+    [messages, audioSettings, selectedLanguage, langName, teacherFeedbackInEnglish],
   );
+
+  const translateMessage = useCallback(async (messageId, text) => {
+    if (translations[messageId]) return;
+    try {
+      const response = await sendChatMessage(
+        [
+          getTranslatePrompt(),
+          { role: "user", content: text },
+        ],
+        "gemma4:e2b",
+        null,
+      );
+      setTranslations((prev) => ({ ...prev, [messageId]: response.trim() }));
+    } catch (err) {
+      console.error("Translation failed", err);
+      setTranslations((prev) => ({ ...prev, [messageId]: "[Translation failed]" }));
+    }
+  }, [translations]);
 
   const fetchAndPlayAudio = async (text, messageId) => {
     try {
@@ -221,5 +250,7 @@ export function useChat(
     sendMessage,
     playAudioForMessage,
     audioCache,
+    translations,
+    translateMessage,
   };
 }

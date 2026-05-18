@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import SettingsToggle from './SettingsToggle.jsx';
 
-export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings }) {
+export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish }) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -131,6 +131,12 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
             label="Correct Casing" 
             enabled={correctionSettings?.casing} 
             onChange={(val) => setCorrectionSettings(prev => ({ ...prev, casing: val }))} 
+          />
+          <h3 style={{ fontSize: '1rem', marginTop: '16px', marginBottom: '8px', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)' }}>Teacher Preferences</h3>
+          <SettingsToggle 
+            label="Feedback in English" 
+            enabled={teacherFeedbackInEnglish} 
+            onChange={setTeacherFeedbackInEnglish} 
           />
         </div>
       )}

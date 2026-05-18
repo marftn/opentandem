@@ -13,6 +13,7 @@ function App() {
     accents: false,
     casing: false
   });
+  const [teacherFeedbackInEnglish, setTeacherFeedbackInEnglish] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
   useEffect(() => {
@@ -101,7 +102,7 @@ function App() {
 
   return (
     <div style={{ padding: '20px', height: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-      <SettingsPanel audioSettings={audioSettings} setAudioSettings={setAudioSettings} correctionSettings={correctionSettings} setCorrectionSettings={setCorrectionSettings} />
+      <SettingsPanel audioSettings={audioSettings} setAudioSettings={setAudioSettings} correctionSettings={correctionSettings} setCorrectionSettings={setCorrectionSettings} teacherFeedbackInEnglish={teacherFeedbackInEnglish} setTeacherFeedbackInEnglish={setTeacherFeedbackInEnglish} />
       <header style={{ width: '100%', maxWidth: '800px', marginBottom: '20px', textAlign: 'center', flexShrink: 0 }}>
         <h1 style={{ background: 'var(--msg-user)', WebkitBackgroundClip: 'text', color: 'transparent', letterSpacing: '-0.5px' }}>
           Tandem Language Tutor
@@ -110,7 +111,7 @@ function App() {
       </header>
       
       <main style={{ flex: 1, width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', paddingBottom: '20px', minHeight: 0 }}>
-        <ChatInterface audioSettings={audioSettings} correctionSettings={correctionSettings} selectedLanguage={selectedLanguage} />
+        <ChatInterface audioSettings={audioSettings} correctionSettings={correctionSettings} selectedLanguage={selectedLanguage} teacherFeedbackInEnglish={teacherFeedbackInEnglish} />
       </main>
     </div>
   );
