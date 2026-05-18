@@ -10,7 +10,6 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
   const [showTranslation, setShowTranslation] = useState(false);
   const popupRef = useRef(null);
   const hintPopupRef = useRef(null);
-  const translatePopupRef = useRef(null);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -37,19 +36,6 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showHint]);
-
-  // Close translation popup when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (translatePopupRef.current && !translatePopupRef.current.contains(event.target)) {
-        setShowTranslation(false);
-      }
-    };
-    if (showTranslation) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showTranslation]);
 
   return (
     <div className="animate-fade-in" style={{
@@ -188,137 +174,35 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
 
         {/* Translate Button (Left of AI bubble) */}
         {!isUser && !isStreaming && onTranslate && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => {
-                onTranslate();
-                setShowTranslation(!showTranslation);
-              }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--accent-primary)',
-                transition: 'transform 0.2s',
-                transform: showTranslation ? 'scale(1.1)' : 'scale(1)'
-              }}
-              title="Translate to English"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 8l6 6"></path>
-                <path d="M4 14l6-6 2-3"></path>
-                <path d="M2 5h12"></path>
-                <path d="M7 2h1"></path>
-                <path d="M17 16l4-4"></path>
-                <path d="M16 21l5-5"></path>
-                <path d="M22 10.5l-5 5"></path>
-              </svg>
-            </button>
-
-            {showTranslation && createPortal(
-              <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 9999,
-                padding: '16px'
-              }}>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    backdropFilter: 'blur(6px)',
-                    WebkitBackdropFilter: 'blur(6px)'
-                  }}
-                  onClick={() => setShowTranslation(false)}
-                />
-                <div ref={translatePopupRef} className="glass-panel animate-fade-in" style={{
-                  position: 'relative',
-                  width: '100%',
-                  maxWidth: '450px',
-                  maxHeight: '85vh',
-                  overflowY: 'auto',
-                  padding: '24px',
-                  borderRadius: 'var(--radius-lg, 16px)',
-                  background: 'var(--bg-secondary)',
-                  boxShadow: 'var(--shadow-lg)',
-                  border: '1px solid var(--border-glass)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  zIndex: 10000
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 8l6 6"></path>
-                        <path d="M4 14l6-6 2-3"></path>
-                        <path d="M2 5h12"></path>
-                        <path d="M7 2h1"></path>
-                        <path d="M17 16l4-4"></path>
-                        <path d="M16 21l5-5"></path>
-                        <path d="M22 10.5l-5 5"></path>
-                      </svg>
-                      <strong style={{ fontFamily: 'var(--font-heading)', fontSize: '1.1rem' }}>English Translation</strong>
-                    </div>
-                    <button
-                      onClick={() => setShowTranslation(false)}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid var(--border-glass)',
-                        color: 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        padding: '6px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.color = 'var(--text-primary)';
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.color = 'var(--text-secondary)';
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                      }}
-                      title="Close"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                  </div>
-                  <div style={{ lineHeight: '1.6', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                    {translation ? (
-                      <ReactMarkdown>{translation}</ReactMarkdown>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
-                        <span style={{ width: '16px', height: '16px', border: '2px solid var(--text-secondary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
-                        Translating...
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>,
-              document.body
-            )}
-          </div>
+          <button
+            onClick={() => {
+              onTranslate();
+              setShowTranslation(!showTranslation);
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--accent-primary)',
+              transition: 'transform 0.2s',
+              transform: showTranslation ? 'scale(1.1)' : 'scale(1)'
+            }}
+            title="Translate to English"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 8l6 6"></path>
+              <path d="M4 14l6-6 2-3"></path>
+              <path d="M2 5h12"></path>
+              <path d="M7 2h1"></path>
+              <path d="M17 16l4-4"></path>
+              <path d="M16 21l5-5"></path>
+              <path d="M22 10.5l-5 5"></path>
+            </svg>
+          </button>
         )}
 
         {/* Correction Button (Left of bubble) */}
@@ -474,6 +358,47 @@ export default function MessageBubble({ message, isStreaming = false, onPlayAudi
         </div>
 
       </div>
+
+      {showTranslation && (
+        <div style={{
+          display: 'flex',
+          justifyContent: isUser ? 'flex-end' : 'flex-start',
+          marginTop: '6px'
+        }}>
+          <div style={{
+            maxWidth: '75%',
+            padding: '10px 16px',
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            borderBottomLeftRadius: isUser ? 'var(--radius-md)' : '4px',
+            borderBottomRightRadius: isUser ? '4px' : 'var(--radius-md)',
+            fontSize: '0.9rem',
+            color: 'var(--text-primary)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 8l6 6"></path>
+                <path d="M4 14l6-6 2-3"></path>
+                <path d="M2 5h12"></path>
+                <path d="M7 2h1"></path>
+                <path d="M17 16l4-4"></path>
+                <path d="M16 21l5-5"></path>
+                <path d="M22 10.5l-5 5"></path>
+              </svg>
+              English
+            </div>
+            {translation ? (
+              <ReactMarkdown>{translation}</ReactMarkdown>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+                <span style={{ width: '14px', height: '14px', border: '2px solid var(--text-secondary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                Translating...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {!isUser && !isStreaming && showAudioBtn && onPlayAudio && (
         <div style={{ marginTop: '6px', marginLeft: '4px' }}>
