@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: process.env.HOST || '127.0.0.1',
     proxy: {
       '/api/chat': {
         target: process.env.OLLAMA_URL || 'http://localhost:11434',
