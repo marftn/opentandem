@@ -1,0 +1,40 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.track {
+  flex-shrink: 0;
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+
+.trackOn  { background: var(--accent-primary); border: 1px solid var(--accent-primary); }
+.trackOff { background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-glass); }
+
+.trackLoading {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  top: 2px;
+  transition: left var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.thumbOn  { left: 18px; }
+.thumbOff { left: 2px; }

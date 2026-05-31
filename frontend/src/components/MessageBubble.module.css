@@ -1,0 +1,118 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.rowUser { justify-content: flex-end; }
+.rowAi   { justify-content: flex-start; }
+
+.bubble {
+  max-width: 75%;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+}
+
+.bubbleUser {
+  background: var(--msg-user);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-glow);
+  border-bottom-right-radius: 4px;
+}
+
+.bubbleAi {
+  background: var(--msg-ai);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-glass);
+  border-bottom-left-radius: 4px;
+}
+
+.bubbleText {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.streamingCursor {
+  animation: pulse 1s infinite;
+}
+
+.feedbackBtn {
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.feedbackBtn:hover,
+.feedbackBtnActive {
+  transform: scale(1.1);
+}
+
+.correctionSpinner {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.successColor  { color: var(--color-success); }
+.errorColor    { color: var(--color-error); }
+.warningColor  { color: var(--color-warning); }
+.accentColor   { color: var(--accent-primary); }
+
+.translationRow {
+  display: flex;
+  margin-top: 6px;
+}
+
+.translationRowUser { justify-content: flex-end; }
+.translationRowAi   { justify-content: flex-start; }
+
+.translationBubble {
+  max-width: 75%;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.translationBubbleUser { border-bottom-right-radius: 4px; }
+.translationBubbleAi   { border-bottom-left-radius: 4px; }
+
+.translationLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.translating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.audioRow {
+  margin-top: 6px;
+  margin-left: 4px;
+}

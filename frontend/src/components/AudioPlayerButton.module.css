@@ -1,0 +1,17 @@
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.btnReady   { color: var(--text-primary); }
+.btnPending { color: var(--text-secondary); opacity: 0.5; }
+
+.btn:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.1);
+}

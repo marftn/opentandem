@@ -1,0 +1,46 @@
+.form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  resize: none;
+  max-height: 120px;
+  min-height: 24px;
+  padding: 8px 4px;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.actionBtn {
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  color: white;
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.micBtn          { background: rgba(255, 255, 255, 0.1); }
+.micBtnRecording { background: var(--color-error); }
+.sendBtn         { background: rgba(255, 255, 255, 0.1); }
+.sendBtnActive   { background: var(--accent-primary); }
