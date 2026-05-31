@@ -1,6 +1,7 @@
 const OLLAMA_API = '/api/chat';
 const KOKORO_API = '/v1/audio/speech';
 
+// Streams a chat completion from Ollama, calling onChunk with the accumulated text on each token.
 export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
   const response = await fetch(OLLAMA_API, {
     method: 'POST',
@@ -32,6 +33,7 @@ export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
   return fullResponse;
 }
 
+// Synthesizes speech via Kokoro TTS and returns a blob URL ready for playback.
 export async function generateSpeech(text, voice = 'pf_dora', langCode = 'p') {
   const response = await fetch(KOKORO_API, {
     method: 'POST',
@@ -42,6 +44,7 @@ export async function generateSpeech(text, voice = 'pf_dora', langCode = 'p') {
   return URL.createObjectURL(await response.blob());
 }
 
+// Sends a recorded audio blob to the STT endpoint and returns the transcript string.
 export async function transcribeAudio(audioBlob) {
   const formData = new FormData();
   formData.append('file', audioBlob, 'recording.webm');
@@ -50,6 +53,7 @@ export async function transcribeAudio(audioBlob) {
   return (await response.json()).transcript;
 }
 
+// Returns true if the given health endpoint responds with a 2xx status.
 async function checkServiceHealth(endpoint) {
   try {
     return (await fetch(endpoint)).ok;

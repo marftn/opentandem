@@ -5,6 +5,7 @@ import Modal from './Modal.jsx';
 import { CheckCircleIcon, AlertCircleIcon, AlertTriangleIcon, LightbulbIcon, TranslateIcon } from './icons.jsx';
 import styles from './MessageBubble.module.css';
 
+// Shows a spinner while the teacher is evaluating, a checkmark when correct, or an error button with a modal trigger.
 function CorrectionStatus({ message, isActive, onToggle }) {
   if (message.isCorrecting) {
     return (
@@ -34,6 +35,7 @@ function CorrectionStatus({ message, isActive, onToggle }) {
   );
 }
 
+// Renders a single chat bubble with optional correction status, naturalness hint, translation, and audio replay.
 export default function MessageBubble({ message, isStreaming = false, onPlayAudio, hasAudio, showAudioBtn, translation, onTranslate }) {
   const isUser = message.role === 'user';
   const [showCorrection, setShowCorrection] = useState(false);

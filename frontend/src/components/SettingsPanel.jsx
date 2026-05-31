@@ -5,6 +5,7 @@ import { useClickOutside } from '../hooks/useClickOutside.js';
 import { checkKokoroHealth, checkSttHealth } from '../services/api.js';
 import styles from './SettingsPanel.module.css';
 
+// Collapsible settings dropdown for audio and correction preferences; closes on outside click.
 export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish }) {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -14,6 +15,7 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
 
   useClickOutside(panelRef, () => setIsOpen(false));
 
+  // Verifies the Kokoro service is reachable before enabling TTS; shows an error and keeps it off if not.
   const handleToggleTTS = async (val) => {
     if (val) {
       setLoadingTTS(true);
@@ -29,6 +31,7 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
     setAudioSettings(prev => ({ ...prev, generateAudio: val }));
   };
 
+  // Verifies the STT service is reachable before enabling mic input; shows an error and keeps it off if not.
   const handleToggleSTT = async (val) => {
     if (val) {
       setLoadingSTT(true);

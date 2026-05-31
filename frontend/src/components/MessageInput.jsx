@@ -4,6 +4,7 @@ import { LANGUAGES } from '../constants/languages.js';
 import { MicIcon, StopIcon, SendIcon } from './icons.jsx';
 import styles from './MessageInput.module.css';
 
+// Auto-resizing text input with an optional microphone button for voice recording and transcription.
 export default function MessageInput({ onSend, isLoading, enableSTT = true, selectedLanguage = 'pt' }) {
   const [text, setText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -20,6 +21,7 @@ export default function MessageInput({ onSend, isLoading, enableSTT = true, sele
     }
   }, [text]);
 
+  // Sends the current text and resets the input.
   const submitText = () => {
     if (text.trim() && !isLoading && !isTranscribing) {
       onSend(text);
@@ -36,6 +38,7 @@ export default function MessageInput({ onSend, isLoading, enableSTT = true, sele
     }
   };
 
+  // Starts or stops microphone recording; on stop, transcribes the audio and sends the transcript.
   const toggleRecording = async () => {
     if (isRecording) {
       mediaRecorderRef.current?.stop();

@@ -1,25 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import ChatInterface from './components/ChatInterface.jsx';
-import SettingsPanel from './components/SettingsPanel.jsx';
-import { LANGUAGES } from './constants/languages.js';
-import { checkKokoroHealth, checkSttHealth } from './services/api.js';
-import styles from './App.module.css';
+import React, { useState, useEffect } from "react";
+import ChatInterface from "./components/ChatInterface.jsx";
+import SettingsPanel from "./components/SettingsPanel.jsx";
+import { LANGUAGES } from "./constants/languages.js";
+import { checkKokoroHealth, checkSttHealth } from "./services/api.js";
+import styles from "./App.module.css";
 
-const DEFAULT_AUDIO_SETTINGS = { autoPlayAudio: true, generateAudio: true, enableSTT: true };
-const DEFAULT_CORRECTION_SETTINGS = { punctuation: false, accents: false, casing: false };
+const DEFAULT_AUDIO_SETTINGS = {
+  autoPlayAudio: true,
+  generateAudio: true,
+  enableSTT: true,
+};
+const DEFAULT_CORRECTION_SETTINGS = {
+  punctuation: false,
+  accents: false,
+  casing: false,
+};
 
 export default function App() {
   const [audioSettings, setAudioSettings] = useState(DEFAULT_AUDIO_SETTINGS);
-  const [correctionSettings, setCorrectionSettings] = useState(DEFAULT_CORRECTION_SETTINGS);
-  const [teacherFeedbackInEnglish, setTeacherFeedbackInEnglish] = useState(false);
+  const [correctionSettings, setCorrectionSettings] = useState(
+    DEFAULT_CORRECTION_SETTINGS,
+  );
+  const [teacherFeedbackInEnglish, setTeacherFeedbackInEnglish] =
+    useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
   useEffect(() => {
-    checkKokoroHealth().then(ok => {
-      if (!ok) setAudioSettings(prev => ({ ...prev, generateAudio: false }));
+    checkKokoroHealth().then((ok) => {
+      if (!ok) setAudioSettings((prev) => ({ ...prev, generateAudio: false }));
     });
-    checkSttHealth().then(ok => {
-      if (!ok) setAudioSettings(prev => ({ ...prev, enableSTT: false }));
+    checkSttHealth().then((ok) => {
+      if (!ok) setAudioSettings((prev) => ({ ...prev, enableSTT: false }));
     });
   }, []);
 
@@ -27,12 +38,18 @@ export default function App() {
     return (
       <div className={styles.page}>
         <header className={styles.header}>
-          <h1 className={`gradient-text ${styles.title}`}>Tandem Language Tutor</h1>
+          <h1 className={`gradient-text ${styles.title}`}>
+            Tandem Language Tutor
+          </h1>
           <p className={styles.subtitle}>Select a language to practice</p>
         </header>
         <div className={styles.languageGrid}>
           {Object.entries(LANGUAGES).map(([code, { name, flag }]) => (
-            <button key={code} className={styles.langBtn} onClick={() => setSelectedLanguage(code)}>
+            <button
+              key={code}
+              className={styles.langBtn}
+              onClick={() => setSelectedLanguage(code)}
+            >
               <span className={styles.langFlag}>{flag}</span>
               {name}
             </button>
@@ -53,8 +70,12 @@ export default function App() {
         setTeacherFeedbackInEnglish={setTeacherFeedbackInEnglish}
       />
       <header className={styles.chatHeader}>
-        <h1 className={`gradient-text ${styles.chatTitle}`}>Tandem Language Tutor</h1>
-        <p className={styles.chatSubtitle}>Practice your {LANGUAGES[selectedLanguage].name} conversation</p>
+        <h1 className={`gradient-text ${styles.chatTitle}`}>
+          Tandem Language Tutor
+        </h1>
+        <p className={styles.chatSubtitle}>
+          Practice your {LANGUAGES[selectedLanguage].name} conversation
+        </p>
       </header>
       <main className={styles.main}>
         <ChatInterface

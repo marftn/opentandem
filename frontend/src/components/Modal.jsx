@@ -4,6 +4,7 @@ import { CloseIcon } from './icons.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 import styles from './Modal.module.css';
 
+// Portal-based modal dialog; closes on backdrop click or outside click via useClickOutside.
 export default function Modal({ isOpen, onClose, title, accentColor, icon, children }) {
   const dialogRef = useRef(null);
   useClickOutside(dialogRef, onClose, isOpen);
