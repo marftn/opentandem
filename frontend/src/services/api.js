@@ -1,5 +1,4 @@
 const OLLAMA_API = '/api/chat';
-const KOKORO_API = '/v1/audio/speech';
 
 // Streams a chat completion from Ollama, calling onChunk with the accumulated text on each token.
 export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
@@ -33,13 +32,12 @@ export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
   return fullResponse;
 }
 
-// Synthesizes speech via Kokoro TTS and returns a blob URL ready for playback.
-export async function generateSpeech(text, voice = 'pf_dora', langCode = 'p') {
-  const response = await fetch(KOKORO_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'kokoro', input: text, voice, lang_code: langCode, response_format: 'mp3' }),
-  });
+// Synthesizes speech via Pocket TTS (one server per language) and returns a blob URL ready for playback.
+export async function generateSpeech(text, voice = 'rafael', lang = 'pt') {
+  const body = new FormData();
+  body.append('text', text);
+  body.append('voice_url', voice);
+  const response = await fetch(`/tts/${lang}`, { method: 'POST', body });
   if (!response.ok) throw new Error(`HTTP error ${response.status}`);
   return URL.createObjectURL(await response.blob());
 }
@@ -62,5 +60,5 @@ async function checkServiceHealth(endpoint) {
   }
 }
 
-export const checkKokoroHealth = () => checkServiceHealth('/health/text-to-audio');
-export const checkSttHealth    = () => checkServiceHealth('/health/audio-to-text');
+export const checkTtsHealth = (lang) => checkServiceHealth(`/health/text-to-audio/${lang}`);
+export const checkSttHealth = () => checkServiceHealth('/health/audio-to-text');

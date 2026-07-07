@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ChatInterface from "./components/ChatInterface.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
 import { LANGUAGES } from "./constants/languages.js";
-import { checkKokoroHealth, checkSttHealth } from "./services/api.js";
+import { checkTtsHealth, checkSttHealth } from "./services/api.js";
 import styles from "./App.module.css";
 
 const DEFAULT_AUDIO_SETTINGS = {
@@ -26,13 +26,14 @@ export default function App() {
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
   useEffect(() => {
-    checkKokoroHealth().then((ok) => {
+    if (!selectedLanguage) return;
+    checkTtsHealth(selectedLanguage).then((ok) => {
       if (!ok) setAudioSettings((prev) => ({ ...prev, generateAudio: false }));
     });
     checkSttHealth().then((ok) => {
       if (!ok) setAudioSettings((prev) => ({ ...prev, enableSTT: false }));
     });
-  }, []);
+  }, [selectedLanguage]);
 
   if (!selectedLanguage) {
     return (
@@ -68,6 +69,7 @@ export default function App() {
         setCorrectionSettings={setCorrectionSettings}
         teacherFeedbackInEnglish={teacherFeedbackInEnglish}
         setTeacherFeedbackInEnglish={setTeacherFeedbackInEnglish}
+        selectedLanguage={selectedLanguage}
       />
       <header className={styles.chatHeader}>
         <h1 className={`gradient-text ${styles.chatTitle}`}>

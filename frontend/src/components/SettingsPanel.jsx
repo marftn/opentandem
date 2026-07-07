@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import SettingsToggle from './SettingsToggle.jsx';
 import { SettingsIcon } from './icons.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
-import { checkKokoroHealth, checkSttHealth } from '../services/api.js';
+import { checkTtsHealth, checkSttHealth } from '../services/api.js';
 import styles from './SettingsPanel.module.css';
 
 // Collapsible settings dropdown for audio and correction preferences; closes on outside click.
-export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish }) {
+export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish, selectedLanguage }) {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loadingTTS, setLoadingTTS] = useState(false);
@@ -15,12 +15,12 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
 
   useClickOutside(panelRef, () => setIsOpen(false));
 
-  // Verifies the Kokoro service is reachable before enabling TTS; shows an error and keeps it off if not.
+  // Verifies the TTS service for the current language is reachable before enabling TTS; shows an error and keeps it off if not.
   const handleToggleTTS = async (val) => {
     if (val) {
       setLoadingTTS(true);
       setErrorMsg('');
-      const isHealthy = await checkKokoroHealth();
+      const isHealthy = await checkTtsHealth(selectedLanguage);
       setLoadingTTS(false);
       if (!isHealthy) {
         setErrorMsg('Text-to-Speech service is currently unavailable.');

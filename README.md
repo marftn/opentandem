@@ -10,7 +10,7 @@ And all this running locally on your own hardware!
 - **Conversational AI** — streams responses in your target language via Ollama
 - **Grammar teacher** — flags errors and explains corrections (respects your punctuation/accent/casing preferences)
 - **Naturalness hints** — suggests more fluent phrasing when your sentence sounds awkward
-- **Text-to-Speech** — generates audio for AI responses via Kokoro, with auto-play
+- **Text-to-Speech** — generates audio for AI responses via [Pocket TTS](https://github.com/kyutai-labs/pocket-tts), with auto-play
 - **Speech-to-Text** — record your message with the mic button, transcribed by NVIDIA Parakeet
 - **English translation** — one-click translation of any AI message
 - **Configurable** — toggle each feature on/off; choose whether feedback is given in English or the target language
@@ -20,7 +20,9 @@ And all this running locally on your own hardware!
 | Service    | Role                             | Default port |
 | ---------- | -------------------------------- | ------------ |
 | `ollama`   | LLM inference (gemma4:e2b)       | 11434        |
-| `kokoro`   | Text-to-Speech                   | 8880         |
+| `tts-pt`   | Text-to-Speech (Portuguese)      | 8881         |
+| `tts-es`   | Text-to-Speech (Spanish)         | 8882         |
+| `tts-it`   | Text-to-Speech (Italian)         | 8883         |
 | `stt`      | Speech-to-Text (NVIDIA Parakeet) | 8000         |
 | `frontend` | React/Vite UI                    | 5173         |
 
@@ -47,8 +49,8 @@ And all this running locally on your own hardware!
    docker compose up
    ```
 
-   On first run, Docker will pull the Kokoro image and build the STT and frontend containers. The STT service also downloads
-   the Parakeet model (~600 MB) from HuggingFace on first start.
+   On first run, Docker will build the Pocket TTS, STT, and frontend containers. The STT service also downloads
+   the Parakeet model (~600 MB) from HuggingFace on first start, and each Pocket TTS container downloads its language model.
 
 3. Pull the LLM model (once the `ollama` container is running):
 
@@ -104,7 +106,9 @@ All options live in `.env` (copy from `.env.tmpl`):
 | `OLLAMA_URL`       | `http://ollama:11434` | Ollama endpoint seen by the frontend container            |
 | `HOST_IP`          | `127.0.0.1`           | IP the frontend binds on. Set to `0.0.0.0` for LAN access |
 | `OLLAMA_REPLICAS`  | `1`                   | Set to `0` to disable the containerised Ollama            |
-| `KOKORO_REPLICAS`  | `1`                   | Set to `0` to disable TTS                                 |
+| `TTS_PT_REPLICAS`  | `1`                   | Set to `0` to disable Portuguese TTS                       |
+| `TTS_ES_REPLICAS`  | `1`                   | Set to `0` to disable Spanish TTS                          |
+| `TTS_IT_REPLICAS`  | `1`                   | Set to `0` to disable Italian TTS                          |
 | `STT_REPLICAS`     | `1`                   | Set to `0` to disable STT                                 |
 
 ## Development (without Docker)

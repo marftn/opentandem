@@ -1,3 +1,21 @@
+x-tts-base: &tts-base
+  build:
+    context: https://github.com/kyutai-labs/pocket-tts.git
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  volumes:
+    - ${HF_HOME_CACHE:-~/.cache/huggingface}:/root/.cache/huggingface
+    - pocket_tts_cache:/root/.cache/pocket_tts
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 60s
+
+volumes:
+  pocket_tts_cache:
+
 services:
   ollama:
     image: ollama/ollama
@@ -21,20 +39,32 @@ services:
         limits:
           memory: 8G
 
-  kokoro:
-    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
-    container_name: kokoro
+  tts-pt:
+    <<: *tts-base
+    container_name: tts-pt
     ports:
-      - "8880:8880"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8880/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      - "8881:8000"
+    command: ["serve", "--host", "0.0.0.0", "--language", "portuguese_24l"]
     deploy:
-      replicas: ${KOKORO_REPLICAS:-1}
+      replicas: ${TTS_PT_REPLICAS:-1}
+
+  tts-es:
+    <<: *tts-base
+    container_name: tts-es
+    ports:
+      - "8882:8000"
+    command: ["serve", "--host", "0.0.0.0", "--language", "spanish_24l"]
+    deploy:
+      replicas: ${TTS_ES_REPLICAS:-1}
+
+  tts-it:
+    <<: *tts-base
+    container_name: tts-it
+    ports:
+      - "8883:8000"
+    command: ["serve", "--host", "0.0.0.0", "--language", "italian_24l"]
+    deploy:
+      replicas: ${TTS_IT_REPLICAS:-1}
 
   frontend:
     build:
@@ -51,12 +81,20 @@ services:
     environment:
       - HOST=0.0.0.0
       - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
-      - KOKORO_URL=http://kokoro:8880
+      - TTS_PT_URL=http://tts-pt:8000
+      - TTS_ES_URL=http://tts-es:8000
+      - TTS_IT_URL=http://tts-it:8000
       - STT_URL=http://stt:8000
     depends_on:
       ollama:
         condition: service_healthy
-      kokoro:
+      tts-pt:
+        condition: service_healthy
+        required: false
+      tts-es:
+        condition: service_healthy
+        required: false
+      tts-it:
         condition: service_healthy
         required: false
       stt:

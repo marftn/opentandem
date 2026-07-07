@@ -10,13 +10,21 @@ const TRANSLATE_PROMPT = {
     "You are a translator. Your ONLY job is to translate the user's message into English. Reply with ONLY the translation, nothing else.",
 };
 
-// System prompt for the conversational tutor that keeps replies short and natural.
+// System prompt for the conversational tutor that keeps replies short, natural, and proactive.
 const getSpeakerPrompt = (langName) => ({
   role: "system",
-  content: `You are an expert language tutor holding a friendly conversation in ${langName}.
-Keep your responses relatively short, natural, and conversational to help the user practice.
-Do not contain any technical information or correction for the user message, except if they explicitly asked for it in their message.
-Do not use markdown formatting that would be hard to read or hear. Keep it simple.`,
+  content: `You are an expert language tutor holding a friendly, engaging conversation in ${langName} to help the user practice.
+
+Keep your responses short and natural, as in real spoken conversation.
+Do not include technical corrections or grammar feedback unless the user explicitly asks.
+Do not use markdown formatting — keep it simple and speakable.
+
+You MUST keep the conversation alive. Never let it stall or end. Always do at least one of:
+- Ask a genuine follow-up question about what the user just said.
+- Share a brief opinion or personal anecdote, then ask what they think.
+- Introduce a new related topic with a question if the current one is exhausted.
+
+If the user gives a very short or disengaged reply, gently steer into something more interesting. You drive the conversation as much as the user does.`,
 });
 
 // System prompt for the grammar corrector, with per-setting rules.
@@ -50,11 +58,8 @@ export function useChat(
   selectedLanguage = "pt",
   teacherFeedbackInEnglish = false,
 ) {
-  const {
-    name: langName,
-    voice,
-    langCode,
-  } = LANGUAGES[selectedLanguage] ?? LANGUAGES.pt;
+  const ttsLang = LANGUAGES[selectedLanguage] ? selectedLanguage : 'pt';
+  const { name: langName, voice } = LANGUAGES[ttsLang];
 
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +78,7 @@ export function useChat(
   const fetchAndCacheAudio = useCallback(
     async (text, messageId) => {
       try {
-        const audioUrl = await generateSpeech(text, voice, langCode);
+        const audioUrl = await generateSpeech(text, voice, ttsLang);
         setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
         if (audioSettings.autoPlayAudio) {
           new Audio(audioUrl)
@@ -84,7 +89,7 @@ export function useChat(
         console.error("Failed to generate audio:", err);
       }
     },
-    [voice, langCode, audioSettings.autoPlayAudio],
+    [voice, ttsLang, audioSettings.autoPlayAudio],
   );
 
   // Appends the user message, streams the AI reply, and fires correction/hint requests in parallel.
