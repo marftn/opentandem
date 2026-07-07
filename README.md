@@ -20,9 +20,7 @@ And all this running locally on your own hardware!
 | Service    | Role                             | Default port |
 | ---------- | -------------------------------- | ------------ |
 | `ollama`   | LLM inference (gemma4:e2b)       | 11434        |
-| `tts-pt`   | Text-to-Speech (Portuguese)      | 8881         |
-| `tts-es`   | Text-to-Speech (Spanish)         | 8882         |
-| `tts-it`   | Text-to-Speech (Italian)         | 8883         |
+| `tts`      | Text-to-Speech (PT/ES/IT, loaded on demand) | 8881 |
 | `stt`      | Speech-to-Text (NVIDIA Parakeet) | 8000         |
 | `frontend` | React/Vite UI                    | 5173         |
 
@@ -106,9 +104,7 @@ All options live in `.env` (copy from `.env.tmpl`):
 | `OLLAMA_URL`       | `http://ollama:11434` | Ollama endpoint seen by the frontend container            |
 | `HOST_IP`          | `127.0.0.1`           | IP the frontend binds on. Set to `0.0.0.0` for LAN access |
 | `OLLAMA_REPLICAS`  | `1`                   | Set to `0` to disable the containerised Ollama            |
-| `TTS_PT_REPLICAS`  | `1`                   | Set to `0` to disable Portuguese TTS                       |
-| `TTS_ES_REPLICAS`  | `1`                   | Set to `0` to disable Spanish TTS                          |
-| `TTS_IT_REPLICAS`  | `1`                   | Set to `0` to disable Italian TTS                          |
+| `TTS_REPLICAS`     | `1`                   | Set to `0` to disable TTS                                  |
 | `STT_REPLICAS`     | `1`                   | Set to `0` to disable STT                                 |
 
 ## Development (without Docker)

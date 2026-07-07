@@ -1,20 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Pocket TTS runs one server per language (no per-request language switching), so each
-// language gets its own proxy target, reached via /tts/<lang> and /health/text-to-audio/<lang>.
-const TTS_URLS = {
-  pt: process.env.TTS_PT_URL || 'http://localhost:8881',
-  es: process.env.TTS_ES_URL || 'http://localhost:8882',
-  it: process.env.TTS_IT_URL || 'http://localhost:8883',
-}
+// Single TTS server loads models per language on demand; language is passed in the path (/tts/<lang>).
+const TTS_URL = process.env.TTS_URL || 'http://localhost:8881'
 
-const ttsProxy = Object.fromEntries(
-  Object.entries(TTS_URLS).flatMap(([lang, target]) => [
-    [`/tts/${lang}`, { target, changeOrigin: true, rewrite: (path) => path.replace(`/tts/${lang}`, '/tts') }],
-    [`/health/text-to-audio/${lang}`, { target, changeOrigin: true, rewrite: (path) => path.replace(`/health/text-to-audio/${lang}`, '/health') }],
-  ])
-)
+const ttsProxy = {
+  '/tts': { target: TTS_URL, changeOrigin: true },
+  '/health/text-to-audio': {
+    target: TTS_URL,
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/health\/text-to-audio/, '/health'),
+  },
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
