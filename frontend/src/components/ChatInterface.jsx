@@ -5,8 +5,8 @@ import MessageInput from './MessageInput.jsx';
 import styles from './ChatInterface.module.css';
 
 // Renders the scrollable message list and the input bar; auto-scrolls to the latest message.
-export default function ChatInterface({ audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish }) {
-  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache, translations, translateMessage } = useChat(audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish);
+export default function ChatInterface({ audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish, reasoningEffort }) {
+  const { messages, currentStreamingMessage, isLoading, sendMessage, playAudioForMessage, audioCache, translations, translateMessage } = useChat(audioSettings, correctionSettings, selectedLanguage, teacherFeedbackInEnglish, reasoningEffort);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {

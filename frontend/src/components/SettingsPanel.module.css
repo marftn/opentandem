@@ -48,6 +48,25 @@
   margin-top: 0;
 }
 
+.selectRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.selectRow select {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 4px 8px;
+  font-size: 0.9rem;
+}
+
 .errorMsg {
   padding: 8px;
   background: rgba(239, 68, 68, 0.2);

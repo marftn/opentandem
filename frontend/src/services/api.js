@@ -3,11 +3,11 @@
 const CHAT_API = '/v1/chat/completions';
 
 // Streams a chat completion (OpenAI SSE format), calling onChunk with the accumulated text on each token.
-export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
+export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk, reasoningEffort = 'low') {
   const response = await fetch(CHAT_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages, stream: true, reasoning_effort: 'low' }),
+    body: JSON.stringify({ model, messages, stream: true, reasoning_effort: reasoningEffort }),
   });
 
   if (!response.ok) throw new Error(`HTTP error ${response.status}`);

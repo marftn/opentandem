@@ -57,6 +57,7 @@ export function useChat(
   correctionSettings = { punctuation: false, casing: false, accents: false },
   selectedLanguage = "pt",
   teacherFeedbackInEnglish = false,
+  reasoningEffort = "low",
 ) {
   const ttsLang = LANGUAGES[selectedLanguage] ? selectedLanguage : 'pt';
   const { name: langName, voice } = LANGUAGES[ttsLang];
@@ -123,6 +124,7 @@ export function useChat(
           speakerMessages,
           MODEL,
           setCurrentStreamingMessage,
+          reasoningEffort,
         );
 
         setMessages((prev) => [
@@ -148,6 +150,7 @@ export function useChat(
             ],
             MODEL,
             null,
+            reasoningEffort,
           )
             .then((r) =>
               updateMessage(userMessageId, {
@@ -173,6 +176,7 @@ export function useChat(
             ],
             MODEL,
             null,
+            reasoningEffort,
           )
             .then((r) =>
               updateMessage(userMessageId, { isHinting: false, hint: r.trim() }),
@@ -195,6 +199,7 @@ export function useChat(
       langName,
       correctionSettings,
       teacherFeedbackInEnglish,
+      reasoningEffort,
       fetchAndCacheAudio,
       updateMessage,
     ],
@@ -209,6 +214,7 @@ export function useChat(
           [TRANSLATE_PROMPT, { role: "user", content: text }],
           MODEL,
           null,
+          reasoningEffort,
         );
         setTranslations((prev) => ({ ...prev, [messageId]: response.trim() }));
       } catch {
@@ -218,7 +224,7 @@ export function useChat(
         }));
       }
     },
-    [translations],
+    [translations, reasoningEffort],
   );
 
   // Plays the cached audio blob for a message, if available.

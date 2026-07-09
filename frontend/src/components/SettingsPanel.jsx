@@ -6,7 +6,7 @@ import { checkTtsHealth, checkSttHealth } from '../services/api.js';
 import styles from './SettingsPanel.module.css';
 
 // Collapsible settings dropdown for audio and correction preferences; closes on outside click.
-export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish, selectedLanguage }) {
+export default function SettingsPanel({ audioSettings, setAudioSettings, correctionSettings, setCorrectionSettings, teacherFeedbackInEnglish, setTeacherFeedbackInEnglish, reasoningEffort, setReasoningEffort, selectedLanguage }) {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loadingTTS, setLoadingTTS] = useState(false);
@@ -74,6 +74,16 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
 
           <h3 className={styles.sectionTitle}>Teacher Preferences</h3>
           <SettingsToggle label="Feedback in English" enabled={teacherFeedbackInEnglish} onChange={setTeacherFeedbackInEnglish} />
+
+          <h3 className={styles.sectionTitle}>Model Preferences</h3>
+          <label className={styles.selectRow}>
+            Reasoning Effort
+            <select value={reasoningEffort} onChange={(e) => setReasoningEffort(e.target.value)}>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
         </div>
       )}
     </div>

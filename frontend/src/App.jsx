@@ -25,6 +25,7 @@ export default function App() {
   );
   const [teacherFeedbackInEnglish, setTeacherFeedbackInEnglish] =
     useState(false);
+  const [reasoningEffort, setReasoningEffort] = useState("low");
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
   useEffect(() => {
@@ -71,6 +72,8 @@ export default function App() {
         setCorrectionSettings={setCorrectionSettings}
         teacherFeedbackInEnglish={teacherFeedbackInEnglish}
         setTeacherFeedbackInEnglish={setTeacherFeedbackInEnglish}
+        reasoningEffort={reasoningEffort}
+        setReasoningEffort={setReasoningEffort}
         selectedLanguage={selectedLanguage}
       />
       <header className={styles.chatHeader}>
@@ -87,6 +90,7 @@ export default function App() {
           correctionSettings={correctionSettings}
           selectedLanguage={selectedLanguage}
           teacherFeedbackInEnglish={teacherFeedbackInEnglish}
+          reasoningEffort={reasoningEffort}
         />
       </main>
     </div>
