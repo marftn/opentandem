@@ -5,6 +5,28 @@ import { LANGUAGES } from "./constants/languages.js";
 import { checkTtsHealth, checkSttHealth } from "./services/api.js";
 import styles from "./App.module.css";
 
+function ThemeToggle() {
+  const [dark, setDark] = useState(
+    () => document.documentElement.dataset.theme === "dark",
+  );
+  const toggle = () => {
+    const next = dark ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+    setDark(!dark);
+  };
+  return (
+    <button
+      className={styles.themeToggle}
+      onClick={toggle}
+      aria-label="Toggle dark mode"
+      title="Toggle dark mode"
+    >
+      {dark ? "☀️" : "🌙"}
+    </button>
+  );
+}
+
 const DEFAULT_AUDIO_SETTINGS = {
   autoPlayAudio: true,
   generateAudio: true,
@@ -41,6 +63,7 @@ export default function App() {
   if (!selectedLanguage) {
     return (
       <div className={styles.page}>
+        <ThemeToggle />
         <header className={styles.header}>
           <h1 className={`gradient-text ${styles.title}`}>
             Tandem Language Tutor
@@ -65,6 +88,7 @@ export default function App() {
 
   return (
     <div className={styles.chatPage}>
+      <ThemeToggle />
       <SettingsPanel
         audioSettings={audioSettings}
         setAudioSettings={setAudioSettings}
