@@ -132,7 +132,7 @@ export function useChat(
         setCurrentStreamingMessage("");
 
         if (audioSettings.generateAudio) {
-          fetchAndCacheAudio(aiContent, aiMessageId);
+          await fetchAndCacheAudio(aiContent, aiMessageId);
         }
 
         const trimmed = content.trim();
