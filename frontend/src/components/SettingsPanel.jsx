@@ -66,6 +66,8 @@ export default function SettingsPanel({ audioSettings, setAudioSettings, correct
           <SettingsToggle label="Auto-Play Audio"       enabled={audioSettings.autoPlayAudio} onChange={(val) => setAudioSettings(prev => ({ ...prev, autoPlayAudio: val }))} />
 
           <h3 className={styles.sectionTitle}>Correction Preferences</h3>
+          <SettingsToggle label="Grammar Correction (Teacher)" enabled={correctionSettings?.enableTeacher} onChange={(val) => setCorrectionSettings(prev => ({ ...prev, enableTeacher: val }))} />
+          <SettingsToggle label="Naturalness Hints (Hinter)"   enabled={correctionSettings?.enableHinter} onChange={(val) => setCorrectionSettings(prev => ({ ...prev, enableHinter: val }))} />
           <SettingsToggle label="Correct Punctuation" enabled={correctionSettings?.punctuation} onChange={(val) => setCorrectionSettings(prev => ({ ...prev, punctuation: val }))} />
           <SettingsToggle label="Correct Accents"     enabled={correctionSettings?.accents}     onChange={(val) => setCorrectionSettings(prev => ({ ...prev, accents: val }))} />
           <SettingsToggle label="Correct Casing"      enabled={correctionSettings?.casing}      onChange={(val) => setCorrectionSettings(prev => ({ ...prev, casing: val }))} />

@@ -14,6 +14,8 @@ const DEFAULT_CORRECTION_SETTINGS = {
   punctuation: false,
   accents: false,
   casing: false,
+  enableTeacher: true,
+  enableHinter: true,
 };
 
 export default function App() {

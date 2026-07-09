@@ -136,45 +136,53 @@ export function useChat(
         }
 
         const trimmed = content.trim();
-        sendChatMessage(
-          [
-            getTeacherPrompt(
-              langName,
-              correctionSettings,
-              teacherFeedbackInEnglish,
-            ),
-            { role: "user", content: trimmed },
-          ],
-          MODEL,
-          null,
-        )
-          .then((r) =>
-            updateMessage(userMessageId, {
-              isCorrecting: false,
-              correction: r.trim(),
-            }),
+        if (correctionSettings.enableTeacher) {
+          sendChatMessage(
+            [
+              getTeacherPrompt(
+                langName,
+                correctionSettings,
+                teacherFeedbackInEnglish,
+              ),
+              { role: "user", content: trimmed },
+            ],
+            MODEL,
+            null,
           )
-          .catch(() =>
-            updateMessage(userMessageId, {
-              isCorrecting: false,
-              correction: null,
-            }),
-          );
+            .then((r) =>
+              updateMessage(userMessageId, {
+                isCorrecting: false,
+                correction: r.trim(),
+              }),
+            )
+            .catch(() =>
+              updateMessage(userMessageId, {
+                isCorrecting: false,
+                correction: null,
+              }),
+            );
+        } else {
+          updateMessage(userMessageId, { isCorrecting: false });
+        }
 
-        sendChatMessage(
-          [
-            getHinterPrompt(langName, teacherFeedbackInEnglish),
-            { role: "user", content: trimmed },
-          ],
-          MODEL,
-          null,
-        )
-          .then((r) =>
-            updateMessage(userMessageId, { isHinting: false, hint: r.trim() }),
+        if (correctionSettings.enableHinter) {
+          sendChatMessage(
+            [
+              getHinterPrompt(langName, teacherFeedbackInEnglish),
+              { role: "user", content: trimmed },
+            ],
+            MODEL,
+            null,
           )
-          .catch(() =>
-            updateMessage(userMessageId, { isHinting: false, hint: null }),
-          );
+            .then((r) =>
+              updateMessage(userMessageId, { isHinting: false, hint: r.trim() }),
+            )
+            .catch(() =>
+              updateMessage(userMessageId, { isHinting: false, hint: null }),
+            );
+        } else {
+          updateMessage(userMessageId, { isHinting: false });
+        }
       } catch (error) {
         console.error("Failed to send message:", error);
       } finally {
