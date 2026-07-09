@@ -1,11 +1,13 @@
-const OLLAMA_API = '/api/chat';
+// OpenAI-compatible chat endpoint. The proxy (vite.config.js) points this at Ollama by
+// default, or an external provider when LLM_URL/LLM_API_KEY are set, injecting the token server-side.
+const CHAT_API = '/v1/chat/completions';
 
-// Streams a chat completion from Ollama, calling onChunk with the accumulated text on each token.
+// Streams a chat completion (OpenAI SSE format), calling onChunk with the accumulated text on each token.
 export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
-  const response = await fetch(OLLAMA_API, {
+  const response = await fetch(CHAT_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages, stream: true }),
+    body: JSON.stringify({ model, messages, stream: true, reasoning_effort: 'low' }),
   });
 
   if (!response.ok) throw new Error(`HTTP error ${response.status}`);
@@ -13,15 +15,24 @@ export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let fullResponse = '';
+  let buffer = '';
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    for (const line of decoder.decode(value, { stream: true }).split('\n').filter(Boolean)) {
+    buffer += decoder.decode(value, { stream: true });
+    // Keep the last (possibly partial) line in the buffer until the next read.
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const payload = trimmed.slice(5).trim();
+      if (payload === '[DONE]') continue;
       try {
-        const parsed = JSON.parse(line);
-        if (parsed.message?.content) {
-          fullResponse += parsed.message.content;
+        const delta = JSON.parse(payload).choices?.[0]?.delta?.content;
+        if (delta) {
+          fullResponse += delta;
           onChunk?.(fullResponse);
         }
       } catch {

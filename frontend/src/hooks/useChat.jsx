@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { sendChatMessage, generateSpeech } from "../services/api.js";
 import { LANGUAGES } from "../constants/languages.js";
 
-const MODEL = "gemma4:e2b";
+const MODEL = import.meta.env.VITE_LLM_MODEL || "gemma4:e2b";
 
 const TRANSLATE_PROMPT = {
   role: "system",

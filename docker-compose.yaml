@@ -59,6 +59,9 @@ services:
     environment:
       - HOST=0.0.0.0
       - OLLAMA_URL=${OLLAMA_URL:-http://ollama:11434}
+      - LLM_URL=${LLM_URL:-}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - VITE_LLM_MODEL=${VITE_LLM_MODEL:-gemma4:e2b}
       - TTS_URL=http://tts:8000
       - STT_URL=http://stt:8000
     depends_on:

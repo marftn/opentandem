@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 // Single TTS server loads models per language on demand; language is passed in the path (/tts/<lang>).
 const TTS_URL = process.env.TTS_URL || 'http://localhost:8881'
 
+// LLM backend: any OpenAI-compatible endpoint. Defaults to local Ollama (which also serves /v1).
+// LLM_API_KEY is injected server-side here so it never reaches the browser.
+const LLM_URL = process.env.LLM_URL || process.env.OLLAMA_URL || 'http://localhost:11434'
+const LLM_API_KEY = process.env.LLM_API_KEY
+
 const ttsProxy = {
   '/tts': { target: TTS_URL, changeOrigin: true },
   '/health/text-to-audio': {
@@ -19,9 +24,10 @@ export default defineConfig({
   server: {
     host: process.env.HOST || '127.0.0.1',
     proxy: {
-      '/api/chat': {
-        target: process.env.OLLAMA_URL || 'http://localhost:11434',
-        changeOrigin: true
+      '/v1/chat/completions': {
+        target: LLM_URL,
+        changeOrigin: true,
+        headers: LLM_API_KEY ? { Authorization: `Bearer ${LLM_API_KEY}` } : {},
       },
       ...ttsProxy,
       '/stt': {
