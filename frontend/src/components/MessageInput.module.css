@@ -2,7 +2,7 @@
   display: flex;
   gap: 12px;
   align-items: flex-end;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 8px 12px;
@@ -40,7 +40,7 @@
   cursor: not-allowed;
 }
 
-.micBtn          { background: rgba(255, 255, 255, 0.1); }
-.micBtnRecording { background: var(--color-error); }
-.sendBtn         { background: rgba(255, 255, 255, 0.1); }
-.sendBtnActive   { background: var(--accent-primary); }
+.micBtn          { background: var(--fill-hover); color: var(--text-secondary); }
+.micBtnRecording { background: var(--color-error); color: #fff; }
+.sendBtn         { background: var(--fill-hover); color: var(--text-secondary); }
+.sendBtnActive   { background: var(--accent-primary); color: #fff; box-shadow: var(--shadow-glow); }

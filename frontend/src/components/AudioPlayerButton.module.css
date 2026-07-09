@@ -3,7 +3,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--fill-subtle);
   border: 1px solid var(--border-glass);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
@@ -13,5 +13,5 @@
 .btnPending { color: var(--text-secondary); opacity: 0.5; }
 
 .btn:not(:disabled):hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--fill-hover);
 }

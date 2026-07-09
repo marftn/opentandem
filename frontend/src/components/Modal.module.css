@@ -48,7 +48,7 @@
 }
 
 .closeBtn {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--fill-subtle);
   border: 1px solid var(--border-glass);
   color: var(--text-secondary);
   padding: 6px;
@@ -60,7 +60,7 @@
 
 .closeBtn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--fill-hover);
 }
 
 .body {

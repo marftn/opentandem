@@ -19,5 +19,5 @@
 .inputBar {
   padding: 20px;
   border-top: 1px solid var(--border-glass);
-  background-color: rgba(20, 22, 33, 0.5);
+  background-color: var(--bg-primary);
 }

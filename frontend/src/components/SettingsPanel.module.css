@@ -15,7 +15,7 @@
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
 }
 
 .toggleBtnOpen {
@@ -59,7 +59,7 @@
 }
 
 .selectRow select {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--fill-subtle);
   color: var(--text-primary);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
@@ -69,8 +69,8 @@
 
 .errorMsg {
   padding: 8px;
-  background: rgba(239, 68, 68, 0.2);
-  color: #ff8a8a;
+  background: rgba(229, 72, 77, 0.15);
+  color: var(--color-error);
   border-radius: 4px;
   font-size: 0.8rem;
 }
