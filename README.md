@@ -3,7 +3,7 @@
 A self-hosted language learning app that lets you practice conversation in Portuguese, Spanish, or Italian.
 Every message you send gets a streamed AI response, silent background feedback from a grammar teacher, and
 a naturalness hint.
-And all this running locally on your own hardware!
+And the possibility to run all that locally on your own hardware!
 
 ## Features
 
@@ -17,12 +17,47 @@ And all this running locally on your own hardware!
 
 ## Services
 
-| Service    | Role                             | Default port |
-| ---------- | -------------------------------- | ------------ |
-| `ollama`   | LLM inference (gemma4:e2b)       | 11434        |
-| `tts`      | Text-to-Speech (PT/ES/IT, loaded on demand) | 8881 |
-| `stt`      | Speech-to-Text (NVIDIA Parakeet) | 8000         |
-| `frontend` | React/Vite UI                    | 5173         |
+| Service    | Role                                        | Default port |
+| ---------- | ------------------------------------------- | ------------ |
+| `ollama`   | LLM inference (gemma4:e2b)                  | 11434        |
+| `tts`      | Text-to-Speech (PT/ES/IT, loaded on demand) | 8881         |
+| `stt`      | Speech-to-Text (NVIDIA Parakeet)            | 8000         |
+| `frontend` | React/Vite UI                               | 5173         |
+
+## Architecture
+
+The `frontend` container serves the React UI **and** acts as the single gateway the browser
+talks to. Its Vite server proxies each path to the right backend (see `frontend/vite.config.js`),
+so the browser never contacts Ollama, TTS, or STT directly. The `LLM_API_KEY` is injected
+server-side and never reaches the client.
+
+```mermaid
+flowchart LR
+    Browser["Browser (React UI)"]
+
+    subgraph frontend["frontend container (Vite proxy, :5173)"]
+        Proxy["path-based proxy"]
+    end
+
+    Browser -->|"HTTP + SSE"| Proxy
+
+    Proxy -->|"/v1/chat/completions"| LLM["ollama :11434<br/>(or external OpenAI-compatible LLM)"]
+    Proxy -->|"/tts/&lt;lang&gt;"| TTS["tts :8881<br/>Pocket TTS (PT/ES/IT)"]
+    Proxy -->|"/stt"| STT["stt :8000<br/>NVIDIA Parakeet"]
+```
+
+A single LLM endpoint backs four independent roles, each driven by its own system prompt
+(see `frontend/src/hooks/useChat.jsx`):
+
+| Role             | Trigger                        | System prompt                               |
+| ---------------- | ------------------------------ | ------------------------------------------- |
+| Conversation     | every message (streamed reply) | reply in the target language                |
+| Grammar teacher  | background, per message        | flag/correct errors, or reply `OK`          |
+| Naturalness hint | background, per message        | suggest more fluent phrasing, or reply `OK` |
+| Translator       | on-demand (per AI message)     | translate to English                        |
+
+The AI reply is streamed token-by-token (OpenAI SSE); the grammar and naturalness calls run
+in parallel in the background and only surface when they find something to say.
 
 ## Prerequisites
 
@@ -97,15 +132,18 @@ The `frontend` service is configured with `extra_hosts: host.docker.internal:hos
 
 All options live in `.env` (copy from `.env.tmpl`):
 
-| Variable           | Default               | Description                                               |
-| ------------------ | --------------------- | --------------------------------------------------------- |
-| `OLLAMA_DATA_PATH` | _(required)_          | Host path for Ollama model storage                        |
-| `HF_HOME_CACHE`    | _(required)_          | Host path for HuggingFace model cache (STT)               |
-| `OLLAMA_URL`       | `http://ollama:11434` | Ollama endpoint seen by the frontend container            |
-| `HOST_IP`          | `127.0.0.1`           | IP the frontend binds on. Set to `0.0.0.0` for LAN access |
-| `OLLAMA_REPLICAS`  | `1`                   | Set to `0` to disable the containerised Ollama            |
-| `TTS_REPLICAS`     | `1`                   | Set to `0` to disable TTS                                  |
-| `STT_REPLICAS`     | `1`                   | Set to `0` to disable STT                                 |
+| Variable           | Default               | Description                                                                 |
+| ------------------ | --------------------- | --------------------------------------------------------------------------- |
+| `OLLAMA_DATA_PATH` | _(required)_          | Host path for Ollama model storage                                          |
+| `HF_HOME_CACHE`    | _(required)_          | Host path for HuggingFace model cache (STT)                                 |
+| `OLLAMA_URL`       | `http://ollama:11434` | Ollama endpoint seen by the frontend container                              |
+| `LLM_URL`          | _(unset)_             | Override to point at any OpenAI-compatible LLM instead of Ollama            |
+| `LLM_API_KEY`      | _(unset)_             | Bearer token for `LLM_URL`; injected server-side, never sent to the browser |
+| `VITE_LLM_MODEL`   | `gemma4:e2b`          | Model name sent in chat requests                                            |
+| `HOST_IP`          | `127.0.0.1`           | IP the frontend binds on. Set to `0.0.0.0` for LAN access                   |
+| `OLLAMA_REPLICAS`  | `1`                   | Set to `0` to disable the containerised Ollama                              |
+| `TTS_REPLICAS`     | `1`                   | Set to `0` to disable TTS                                                   |
+| `STT_REPLICAS`     | `1`                   | Set to `0` to disable STT                                                   |
 
 ## Development (without Docker)
 
