@@ -30,12 +30,14 @@ def get_model(lang: str) -> TTSModel:
     """Return the cached model for a language, loading it on first use."""
     if lang not in LANGUAGES:
         raise HTTPException(status_code=404, detail=f"Unsupported language: {lang}")
+
     # ponytail: one global lock serializes cold loads; fine for 3 languages, split per-lang if it matters.
     with _load_lock:
         if lang not in _models:
             logging.info("Loading TTS model for %s (%s)...", lang, LANGUAGES[lang])
             _models[lang] = TTSModel.load_model(language=LANGUAGES[lang])
             logging.info("Loaded %s.", lang)
+
     return _models[lang]
 
 
@@ -71,8 +73,19 @@ def stream_speech(model: TTSModel, text: str, model_state: dict):
 def health(lang: str):
     if lang not in LANGUAGES:
         raise HTTPException(status_code=404, detail=f"Unsupported language: {lang}")
+
     return {"status": "ok"}
 
+
+# POST cache forces the server to load a language model in cache. This is used when the
+# user selects a language.
+@app.post("/cache/{lang}")
+def cache(
+        lang: str,
+):
+    get_model(lang)
+
+    return {"status": "ok"}
 
 # GET so the browser's <audio> element can stream the response and start playing
 # on the first bytes. ponytail: text rides in the query string (~ few-KB URL limit);
@@ -99,4 +112,5 @@ def text_to_speech(
         )
 
     model_state = model._cached_get_state_for_audio_prompt(voice_url)
+
     return StreamingResponse(stream_speech(model, text, model_state), media_type="audio/wav")

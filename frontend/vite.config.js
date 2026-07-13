@@ -11,6 +11,7 @@ const LLM_API_KEY = process.env.LLM_API_KEY
 
 const ttsProxy = {
   '/tts': { target: TTS_URL, changeOrigin: true },
+  '/cache': { target: TTS_URL, changeOrigin: true },
   '/health/text-to-audio': {
     target: TTS_URL,
     changeOrigin: true,

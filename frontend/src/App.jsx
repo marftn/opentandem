@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ChatInterface from "./components/ChatInterface.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
 import { LANGUAGES } from "./constants/languages.js";
-import { checkTtsHealth, checkSttHealth } from "./services/api.js";
+import { checkTtsHealth, checkSttHealth, cacheTtsModel } from "./services/api.js";
 import styles from "./App.module.css";
 
 function ThemeToggle() {
@@ -52,6 +52,7 @@ export default function App() {
 
   useEffect(() => {
     if (!selectedLanguage) return;
+    cacheTtsModel(selectedLanguage);
     checkTtsHealth(selectedLanguage).then((ok) => {
       if (!ok) setAudioSettings((prev) => ({ ...prev, generateAudio: false }));
     });

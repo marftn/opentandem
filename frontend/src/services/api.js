@@ -68,5 +68,9 @@ async function checkServiceHealth(endpoint) {
   }
 }
 
+// Fire-and-forget: tells the TTS server to preload a language model so the first
+// /tts request isn't blocked on a cold load. Errors are ignored — it's just a warmup.
+export const cacheTtsModel = (lang) => fetch(`/cache/${lang}`, { method: 'POST' }).catch(() => {});
+
 export const checkTtsHealth = (lang) => checkServiceHealth(`/health/text-to-audio/${lang}`);
 export const checkSttHealth = () => checkServiceHealth('/health/audio-to-text');
