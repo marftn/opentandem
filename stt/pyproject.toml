@@ -1,0 +1,15 @@
+[project]
+name = "stt"
+version = "0.1.0"
+description = "Speech to text server using NVIDIA Parakeet."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "torch",
+  "torchaudio",
+  "fastapi",
+  "uvicorn",
+  "python-multipart",
+  "pydub",
+  "nemo_toolkit[asr]",
+]
