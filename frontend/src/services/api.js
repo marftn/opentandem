@@ -43,14 +43,11 @@ export async function sendChatMessage(messages, model = 'gemma4:e2b', onChunk, r
   return fullResponse;
 }
 
-// Synthesizes speech via Pocket TTS (one server per language) and returns a blob URL ready for playback.
-export async function generateSpeech(text, voice = 'rafael', lang = 'pt') {
-  const body = new FormData();
-  body.append('text', text);
-  body.append('voice_url', voice);
-  const response = await fetch(`/tts/${lang}`, { method: 'POST', body });
-  if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-  return URL.createObjectURL(await response.blob());
+// Builds the Pocket TTS URL for a phrase. Feeding this straight to <audio> lets the
+// browser stream the WAV and start playing on the first bytes instead of buffering it all.
+export function generateSpeech(text, voice = 'rafael', lang = 'pt') {
+  const params = new URLSearchParams({ text, voice_url: voice });
+  return `/tts/${lang}?${params}`;
 }
 
 // Sends a recorded audio blob to the STT endpoint and returns the transcript string.

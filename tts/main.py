@@ -3,7 +3,7 @@ import logging
 import threading
 from queue import Queue
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 
 from pocket_tts.data.audio import stream_audio_chunks
@@ -74,11 +74,14 @@ def health(lang: str):
     return {"status": "ok"}
 
 
-@app.post("/tts/{lang}")
+# GET so the browser's <audio> element can stream the response and start playing
+# on the first bytes. ponytail: text rides in the query string (~ few-KB URL limit);
+# fine for chat replies, switch to POST + MediaSource if you ever synth long documents.
+@app.get("/tts/{lang}")
 def text_to_speech(
     lang: str,
-    text: str = Form(...),
-    voice_url: str | None = Form(None),
+    text: str,
+    voice_url: str | None = None,
 ):
     if not text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")

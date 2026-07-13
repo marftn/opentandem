@@ -75,19 +75,16 @@ export function useChat(
     );
   }, []);
 
-  // Generates TTS audio for a message, caches the blob URL, and auto-plays if enabled.
+  // Caches the streaming TTS URL for a message and auto-plays it if enabled.
+  // The <audio> element streams the URL, so playback starts on the first bytes.
   const fetchAndCacheAudio = useCallback(
-    async (text, messageId) => {
-      try {
-        const audioUrl = await generateSpeech(text, voice, ttsLang);
-        setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
-        if (audioSettings.autoPlayAudio) {
-          new Audio(audioUrl)
-            .play()
-            .catch((e) => console.error("Auto-play failed:", e));
-        }
-      } catch (err) {
-        console.error("Failed to generate audio:", err);
+    (text, messageId) => {
+      const audioUrl = generateSpeech(text, voice, ttsLang);
+      setAudioCache((prev) => ({ ...prev, [messageId]: audioUrl }));
+      if (audioSettings.autoPlayAudio) {
+        new Audio(audioUrl)
+          .play()
+          .catch((e) => console.error("Auto-play failed:", e));
       }
     },
     [voice, ttsLang, audioSettings.autoPlayAudio],
