@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:debian
+FROM --platform=linux/amd64 ghcr.io/astral-sh/uv:debian
 WORKDIR /app
 
 # Install system dependencies
