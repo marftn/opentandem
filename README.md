@@ -1,6 +1,6 @@
 # OpenTandem
 
-A self-hosted language learning app that lets you practice conversation in Portuguese, Spanish, or Italian.
+A self-hosted language learning app that lets you practice conversation in Portuguese, Spanish, Italian, or French.
 Every message you send gets a streamed AI response, silent background feedback from a grammar teacher, and
 a naturalness hint.
 And the possibility to run all that locally on your own hardware!

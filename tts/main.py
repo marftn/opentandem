@@ -18,6 +18,7 @@ LANGUAGES = {
     "pt": "portuguese_24l",
     "es": "spanish_24l",
     "it": "italian_24l",
+    "fr": "french_24l",
 }
 
 app = FastAPI(title="OpenTandem TTS")
