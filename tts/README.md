@@ -2,7 +2,7 @@
 
 Text-to-speech server using [pocket-tts](https://github.com/kyutai-labs/pocket-tts). Streams WAV audio as it's generated.
 
-Supported languages: `pt` (Portuguese), `es` (Spanish), `it` (Italian).
+Supported languages: `pt` (Portuguese), `es` (Spanish), `it` (Italian), `fr` (French).
 
 ## Run
 

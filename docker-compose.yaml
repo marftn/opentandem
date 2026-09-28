@@ -6,7 +6,7 @@ services:
     image: ollama/ollama
     container_name: ollama
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - ${OLLAMA_DATA_PATH:-/default/path/.ollama}:/root/.ollama
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     container_name: tts
     ports:
-      - "8881:8000"
+      - "127.0.0.1:8881:8000"
     restart: unless-stopped
     volumes:
       - ${HF_HOME_CACHE:-~/.cache/huggingface}:/root/.cache/huggingface
@@ -80,7 +80,7 @@ services:
       dockerfile: Dockerfile
     container_name: stt
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ${HF_HOME_CACHE:-~/.cache/huggingface}:/root/.cache/huggingface
     restart: unless-stopped
